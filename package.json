@@ -1,0 +1,21 @@
+{
+  "name": "devcamper-api",
+  "version": "1.0.0",
+  "description": "Backend for devcamper api",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "SET NODE_ENV=production&& nodemon server.js",
+    "dev": "nodemon server"
+  },
+  "author": "Manojit Nandi",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "express": "^4.21.2",
+    "mongoose": "^5.13.23"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
