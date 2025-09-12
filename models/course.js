@@ -45,4 +45,56 @@ const CourseSchema = new mongoose.Schema(
   }
 );
 
+CourseSchema.statics.getAverageCost = async function (bootcampId, mode) {
+  const obj = await this.aggregate([
+    {
+      $match: { bootcamp: bootcampId },
+    },
+    {
+      $group: {
+        _id: "$bootcamp",
+        averageCost: { $avg: "$tuition" },
+      },
+    },
+  ]);
+
+  console.log(obj.length);
+
+  try {
+    let avgCost;
+
+    if (obj.length > 0) {
+      // Round up to nearest 10
+      avgCost = Math.ceil(obj[0].averageCost / 10) * 10;
+
+      // Check if we’re deleting the last course
+      const countDocs = await this.model("Course").countDocuments({
+        bootcamp: bootcampId,
+      });
+      if (countDocs === 0 && mode === "del") {
+        avgCost = undefined; // or null
+      }
+    } else {
+      // No courses left for this bootcamp
+      avgCost = undefined; // or null
+    }
+
+    await this.model("Bootcamp").findByIdAndUpdate(bootcampId, {
+      averageCost: avgCost,
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// Call getAverageCost after save
+CourseSchema.post("save", function () {
+  this.constructor.getAverageCost(this.bootcamp, "add");
+});
+
+// Call getAverageCost before remove
+CourseSchema.pre("remove", function () {
+  this.constructor.getAverageCost(this.bootcamp, "del");
+});
+
 module.exports = mongoose.model("Course", CourseSchema);
