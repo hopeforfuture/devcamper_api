@@ -63,8 +63,6 @@ CourseSchema.statics.getAverageCost = async function (bootcampId, mode) {
     },
   ]);
 
-  console.log(obj.length);
-
   try {
     let avgCost;
 
